@@ -3,13 +3,16 @@ This repo documents efforts to reverse engineer the P11 Smartwatch.
 [AliExpress link](https://vi.aliexpress.com/i/4001115214370.html?gatewayAdapt=glo2vnm)
 
 # Specs
-The watch has the following sensors:
 
- - Accelerometer (step counting)
- - PPG (heart rate, blood pressure?
- - EKG (electrodes)
+SoC: Nordic [nRF52832](https://www.nordicsemi.com/Products/nRF52832) 64MHz, 64/32KB RAM, built in bluetooth
 
-It has a colour TFT display
+ECG Frontend: [TI ADS1291](https://www.ti.com/product/ADS1291)
+
+Accelerometer (step counting)
+ 
+ PPG (heart rate, blood pressure? blood sugar? blood oxygen?)
+
+It has a 0.96" colour TFT display
 
 
 # Mobile Apps
