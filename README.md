@@ -2,6 +2,18 @@ This repo documents efforts to reverse engineer the P11 Smartwatch.
 
 [AliExpress link](https://vi.aliexpress.com/i/4001115214370.html?gatewayAdapt=glo2vnm)
 
+Capabilities (claimed):
+
+- Skin Temperature
+- Steps
+- ECG
+- blood pressure
+- blood sugar
+- breaths per minute
+- heart rate
+- blood oxygen
+- 
+
 # Specs
 
 SoC: Nordic [nRF52832](https://www.nordicsemi.com/Products/nRF52832) 64MHz, 64/32KB RAM, built in bluetooth
