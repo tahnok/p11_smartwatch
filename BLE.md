@@ -1,4 +1,22 @@
 
+Services:
+ 
+ - `be940000-7333-be46-b7ae-689e71722bd5`: primary data service
+	 - `be940001-7333-be46-b7ae-689e71722bd5`: main one used I think
+		 - indicate, write
+	 - `be940002-7333-be46-b7ae-689e71722bd5`: unclear if write only
+		 - write, write no response
+	 - `be940003-7333-be46-b7ae-689e71722bd5`: ECG data here, might be for bulk streaming?
+		 - indicate
+ - `0x1801`
+ - `0x180D`: Heart Rate from bluetooth spec
+ - `0x180F`: Battery
+ - `0x180A`: (device info?)
+ - `6e400001-b5a3-f393-e0a9-e50e24dcca9e`: Nordic UART Service (NUS)
+ - `0xFE59`: Unknown
+ - `0xFEE7`: Unknown
+
+
 First device has an address: `EE:13:93:CE:C3:24`
 
 SmartWear supports a few different "product ids"
@@ -18,7 +36,7 @@ There's 2 gatt writes? `gatt2WriteData` and `gattWriteData`. Implies 2 write gat
 
 `be940001-7333-be46-b7ae-689e71722bd5` is the first one
 
-`be940002-7333-be46-b7ae-689e71722bd5` is the second one... they're identical?
+`be940002-7333-be46-b7ae-689e71722bd5` is the second one...
 
 Eventually those are both called by `sendData2Device`
 
