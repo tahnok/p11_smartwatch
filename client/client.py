@@ -4,6 +4,10 @@ UUID_BULK = "be940003-7333-be46-b7ae-689e71722bd5"
 
 ADDRESS = "EE:13:93:CE:C3:24"
 
+import commands as c
+
+from enum import IntEnum
+from dataclasses import dataclass
 import asyncio
 
 from bleak import BleakClient
@@ -59,13 +63,13 @@ def crc16_compute(data: bytearray) -> tuple[int, int]:
     return (low_byte, high_byte)
 
 
-def make_packet(kind: int, data: bytearray) -> bytearray:
+def make_packet(command: c.Command | int, subCommand: IntEnum | int, data: bytearray) -> bytearray:
     length = len(data) + 6
     result = bytearray(length)
 
-    # Set header bytes (kind and length)
-    result[0] = (kind >> 8) & 0xFF
-    result[1] = kind & 0xFF
+    # Set header bytes
+    result[0] = command & 0xFF
+    result[1] = subCommand & 0xFF
     result[2] = length & 0xFF
     result[3] = (length >> 8) & 0xFF
 
@@ -143,31 +147,59 @@ def parse_device_info(b_arr: bytearray) -> dict:
     result["dataType"] = 512
     result["data"] = data
 
+
     return result
 
 
-GET_DEVICE_INFO = 512
-APP_START_MEASURE = 815
+@dataclass
+class Packet:
+    dataType: int
+    command: c.Command
+    subCommand: IntEnum | int
+    length: int
+    crc: int
+    data: bytearray
+
+def raw_to_packet(raw: bytearray) -> Packet:
+    dataType = int.from_bytes(raw[0:2])
+    command = c.Command(raw[0])
+    if not raw[1] in c.COMMAND_TO_SUBCOMMAND[command]:
+        print("Warning! subcommand not mapped")
+        subCommand = raw[1]
+    else:
+        subCommand = c.COMMAND_TO_SUBCOMMAND[command](raw[1])
+    length = int.from_bytes(raw[2:4], byteorder="little")
+    crc = int.from_bytes(raw[-2:])
+    data = raw[4:-2]
+    return Packet(dataType, command, subCommand, length, crc, data)
+
+
 
 # not working
-HEART_RATE_MEASURE = make_packet(APP_START_MEASURE, bytearray(b"\x01\x00"))
+HEART_RATE_MEASURE = make_packet(c.Command.CONTROL, c.Control.START_MEASUREMENT, bytearray(b"\x01\x00")) # 815
 
-GET_DEVICE_INFO_PACKET = make_packet(GET_DEVICE_INFO, bytearray([71, 67]))
+GET_DEVICE_INFO_PACKET = make_packet(c.Command.GET, c.Get.DEVICE_INFO, bytearray([71, 67])) # 512
 
+START_ECG_PACKET = make_packet(c.Command.CONTROL, c.Control.BLOOD_CHECK, bytearray([2])) # 770
 
+SOMETHING_ECG_START = make_packet(c.Command.CONTROL, c.Control.WAVE_UPLOAD, bytearray([1,0])) # 779
+
+SOMETHING_ECG_START_2 = make_packet(c.Command.CONTROL, c.Control.REAL_DATA, bytearray([1,3,2])) # 777
+
+GET_DEVICE_INFO = 512
 def callback(char: BleakGATTCharacteristic, data: bytearray):
     print(f"{char.uuid} rx: {data.hex()}")
-    dataType = int.from_bytes(data[0:2])
-    if dataType == GET_DEVICE_INFO:
-        print(
-            parse_device_info(data[4:])
-        )  # trim dataType, length, probably should trim crc as wel...
+    p = raw_to_packet(data)
+    if p.dataType == GET_DEVICE_INFO:
+        print(parse_device_info(p.data))
+    else:
+        print(p.dataType, p.data)
 
 
 async def main():
     print("Connecting")
     # I think this is to start a heart rate measure
-    packets = [GET_DEVICE_INFO_PACKET]
+    packets = [START_ECG_PACKET, SOMETHING_ECG_START, SOMETHING_ECG_START_2]
     async with BleakClient(ADDRESS) as client:
         print("Connected")
         service = client.services.get_service(SERVICE_UUID)
@@ -182,7 +214,7 @@ async def main():
             print(f"sending {packet.hex()}")
             x = await client.write_gatt_char(char, packet, response=True)
             print(f"immediate response {x}")
-        for _ in range(2):
+        for _ in range(5):
             await asyncio.sleep(1)
             print(".")
 

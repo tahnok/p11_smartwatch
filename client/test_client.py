@@ -6,7 +6,7 @@ def test_crc16_compute():
 
 
 def test_make_packet():
-    assert make_packet(0x0302, bytearray(b"\x02")) == bytearray(
+    assert make_packet(0x03, 0x02, bytearray(b"\x02")) == bytearray(
         b"\x03\x02\x07\x00\x02\x64\xb7"
     )
 
