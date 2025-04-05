@@ -1,10 +1,12 @@
 """
-This file contains named constants used for commands and 
+This file contains named constants used for commands and
 subcommands taken from the Android app HealthWear
 
 Not all of them have been checked for accuracy and correctedness
 """
+
 from enum import IntEnum
+
 
 class Command(IntEnum):
     SETTING = 1
@@ -19,6 +21,7 @@ class Command(IntEnum):
     SELF_INSPECTION = 12
     CUSTOMIZE = 13
     TEST_TOOL = 14
+
 
 class Control(IntEnum):
     FIND_DEVICE = 0
@@ -73,6 +76,7 @@ class Control(IntEnum):
     LIPID_CALIBRATION = 56
     SEND_UUID = 57
 
+
 class Collect(IntEnum):
     QUERY_NUM = 0
     GET_WITH_INDEX = 1
@@ -87,12 +91,14 @@ class Collect(IntEnum):
     DELETE_WITH_TIMESTAMP = 49
     SYNC_DATA = 16
 
+
 class Customize(IntEnum):
     CGM = 1
     WIT = 2
     SYNC_DATA = 117
     SYNC_FILE = 118
     SYNC_BLOCK_VERIFY = 128
+
 
 class DeviceControl(IntEnum):
     FIND_MOBILE = 0
@@ -117,8 +123,10 @@ class DeviceControl(IntEnum):
     MEASUR_STATUS_AND_RESULTS = 19
     REQUEST_DYNAMIC_CODE = 21
 
+
 class Factory(IntEnum):
     OPEN_FATORY = 9
+
 
 class Get(IntEnum):
     DEVICE_INFO = 0
@@ -153,6 +161,7 @@ class Get(IntEnum):
     ALI_IOT_ACTIVATION_STATE = 34
     SCREEN_PARAMETERS = 35
     CARD_INFO = 36
+
 
 class Health(IntEnum):
     HISTORY_SPORT = 2
@@ -198,6 +207,7 @@ class Health(IntEnum):
     DELETE_BACKGROUND_REMINDER_RECORD = 77
     HISTORY_BLOCK = 128
 
+
 class Real(IntEnum):
     UPLOAD_SPORT = 0
     UPLOAD_HEART = 1
@@ -216,8 +226,10 @@ class Real(IntEnum):
     UPLOAD_MUL_PHOTOELECTRIC_WAVEFORM = 15
     UPLOAD_INFLATED_BLOOD = 1550
 
+
 class SelfInspection(IntEnum):
     SELF_INSPECTION_CHECK = 0
+
 
 class Setting(IntEnum):
     TIME = 0
@@ -282,8 +294,10 @@ class Setting(IntEnum):
     REGULAR_REMINDER = 61
     RESPIRATORY_RATE_ALARM = 62
 
+
 class TestTool(IntEnum):
     GSENSOR = 4
+
 
 # This one might be wrong, it's different in the code
 class DialCollect(IntEnum):
@@ -293,20 +307,22 @@ class DialCollect(IntEnum):
     DIAL_DELETE = 4
     DIAL_SET_CURRENT = 5
 
+
 COMMAND_TO_SUBCOMMAND = {
-        Command.SETTING: Setting,
-        Command.GET: Get,
-        Command.CONTROL: Control,
-        Command.DEV_CONTROL: DeviceControl,
-        Command.HEALTH: Health,
-        Command.REAL: Real,
-        Command.COLLECT: Collect,
-        Command.FACTORY: Factory,
-        Command.DIAL: DialCollect,
-        Command.SELF_INSPECTION: SelfInspection,
-        Command.CUSTOMIZE: Customize,
-        Command.TEST_TOOL: TestTool,
+    Command.SETTING: Setting,
+    Command.GET: Get,
+    Command.CONTROL: Control,
+    Command.DEV_CONTROL: DeviceControl,
+    Command.HEALTH: Health,
+    Command.REAL: Real,
+    Command.COLLECT: Collect,
+    Command.FACTORY: Factory,
+    Command.DIAL: DialCollect,
+    Command.SELF_INSPECTION: SelfInspection,
+    Command.CUSTOMIZE: Customize,
+    Command.TEST_TOOL: TestTool,
 }
+
 
 def parse_dataType(val: int) -> tuple[Command, IntEnum | int]:
     assert 0 < val < 0xFFFF, "val is too large"
