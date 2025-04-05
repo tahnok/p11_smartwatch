@@ -162,12 +162,7 @@ class Packet:
 
 def raw_to_packet(raw: bytearray) -> Packet:
     dataType = int.from_bytes(raw[0:2])
-    command = c.Command(raw[0])
-    if not raw[1] in c.COMMAND_TO_SUBCOMMAND[command]:
-        print("Warning! subcommand not mapped")
-        subCommand = raw[1]
-    else:
-        subCommand = c.COMMAND_TO_SUBCOMMAND[command](raw[1])
+    command, subCommand = c.parse_dataType(dataType)
     length = int.from_bytes(raw[2:4], byteorder="little")
     crc = int.from_bytes(raw[-2:])
     data = raw[4:-2]

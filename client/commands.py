@@ -308,3 +308,17 @@ COMMAND_TO_SUBCOMMAND = {
         Command.TEST_TOOL: TestTool,
 }
 
+def parse_dataType(val: int) -> tuple[Command, IntEnum | int]:
+    assert 0 < val < 0xFFFF, "val is too large"
+
+    cmd = (val >> 8) & 0xFF
+    assert cmd in Command, f"unknown command {cmd}"
+    cmd = Command(cmd)
+
+    subCommand = val & 0xFF
+    if not subCommand in COMMAND_TO_SUBCOMMAND[cmd]:
+        print(f"Unknown subcommand ({subCommand}) for {cmd}")
+    else:
+        subCommand = COMMAND_TO_SUBCOMMAND[cmd](subCommand)
+
+    return cmd, subCommand
