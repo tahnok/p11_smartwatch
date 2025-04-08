@@ -8,7 +8,11 @@ Not all of them have been checked for accuracy and correctedness
 from enum import IntEnum
 
 
-class Command(IntEnum):
+class PrettierPrint:
+    def __repr__(self):
+        return f"{self.name}[{self.value}]"
+
+class Command(PrettierPrint, IntEnum):
     SETTING = 1
     GET = 2
     CONTROL = 3
@@ -23,7 +27,7 @@ class Command(IntEnum):
     TEST_TOOL = 14
 
 
-class Control(IntEnum):
+class Control(PrettierPrint, IntEnum):
     FIND_DEVICE = 0
     HEART_TEST = 1
     BLOOD_TEST = 2
@@ -77,7 +81,7 @@ class Control(IntEnum):
     SEND_UUID = 57
 
 
-class Collect(IntEnum):
+class Collect(PrettierPrint, IntEnum):
     QUERY_NUM = 0
     GET_WITH_INDEX = 1
     GET_WITH_TIMESTAMP = 2
@@ -92,7 +96,7 @@ class Collect(IntEnum):
     SYNC_DATA = 16
 
 
-class Customize(IntEnum):
+class Customize(PrettierPrint, IntEnum):
     CGM = 1
     WIT = 2
     SYNC_DATA = 117
@@ -100,7 +104,7 @@ class Customize(IntEnum):
     SYNC_BLOCK_VERIFY = 128
 
 
-class DeviceControl(IntEnum):
+class DeviceControl(PrettierPrint, IntEnum):
     FIND_MOBILE = 0
     LOST_REMINDER = 1
     ANSWER_AND_CLOSE_PHONE = 2
@@ -124,11 +128,11 @@ class DeviceControl(IntEnum):
     REQUEST_DYNAMIC_CODE = 21
 
 
-class Factory(IntEnum):
+class Factory(PrettierPrint, IntEnum):
     OPEN_FATORY = 9
 
 
-class Get(IntEnum):
+class Get(PrettierPrint, IntEnum):
     DEVICE_INFO = 0
     SUPPORT_FUNCTION = 1
     MAC_ADDRESS = 2
@@ -163,7 +167,7 @@ class Get(IntEnum):
     CARD_INFO = 36
 
 
-class Health(IntEnum):
+class Health(PrettierPrint, IntEnum):
     HISTORY_SPORT = 2
     HISTORY_SLEEP = 4
     HISTORY_HEART = 6
@@ -208,7 +212,7 @@ class Health(IntEnum):
     HISTORY_BLOCK = 128
 
 
-class Real(IntEnum):
+class Real(PrettierPrint, IntEnum):
     UPLOAD_SPORT = 0
     UPLOAD_HEART = 1
     UPLOAD_BLOOD_OXYGEN = 2
@@ -227,11 +231,11 @@ class Real(IntEnum):
     UPLOAD_INFLATED_BLOOD = 1550
 
 
-class SelfInspection(IntEnum):
+class SelfInspection(PrettierPrint, IntEnum):
     SELF_INSPECTION_CHECK = 0
 
 
-class Setting(IntEnum):
+class Setting(PrettierPrint, IntEnum):
     TIME = 0
     ALARM = 1
     GOAL = 2
@@ -295,12 +299,12 @@ class Setting(IntEnum):
     RESPIRATORY_RATE_ALARM = 62
 
 
-class TestTool(IntEnum):
+class TestTool(PrettierPrint, IntEnum):
     GSENSOR = 4
 
 
 # This one might be wrong, it's different in the code
-class DialCollect(IntEnum):
+class DialCollect(PrettierPrint, IntEnum):
     DIAL_SWITCH = 0
     DIAL_BLOCK = 2
     DIAL_INFO = 3
