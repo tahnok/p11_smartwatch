@@ -1,4 +1,4 @@
-from parser import parse_features, parse_device_info
+from parser import parse_features, parse_device_info, parse_name
 
 
 def test_parse_features():
@@ -160,3 +160,6 @@ def test_parse_device_info():
     }
 
     assert parse_device_info(raw) == expected
+
+def test_parse_name():
+    assert "P12C" == parse_name(b'P12C\x00')

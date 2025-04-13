@@ -128,6 +128,10 @@ GET_DEVICE_SUPPORT_PACKET = make_packet(
     c.Command.GET, c.Get.SUPPORT_FUNCTION, bytearray([71, 70])
 )
 
+GET_DEVICE_NAME_PACKET = make_packet(
+    c.Command.GET, c.Get.DEVCIE_NAME, bytearray([71, 80])
+)
+
 START_ECG_PACKET = make_packet(
     c.Command.CONTROL, c.Control.BLOOD_TEST, bytearray([2])
 )  # 770
@@ -149,21 +153,27 @@ SOMETHING_ECG_START_3 = make_packet(
 # hacky wait until we get a packet before sending next
 event = asyncio.Event()
 
+GET_PARSERS = {
+        c.Get.DEVICE_INFO: parser.parse_device_info,
+        c.Get.SUPPORT_FUNCTION: parser.parse_features,
+        c.Get.DEVCIE_NAME: parser.parse_name,
+    }
+
 def callback(char: BleakGATTCharacteristic, data: bytearray):
     event.set()
     print(f"{char.uuid} rx: {data.hex()}")
     p = raw_to_packet(data)
     print(p)
-    if p.dataType == 512: # get device info
-        print(parser.parse_device_info(p.data))
-    elif p.dataType == 513: # get device features
-        print(parser.parse_features(p.data))
+    if p.command == c.Command.GET:
+        if p.subCommand in GET_PARSERS:
+            print(GET_PARSERS[p.subCommand](p.data))
 
 
 async def main():
     print("Connecting")
     # I think this is to start a heart rate measure
-    packets = [START_ECG_PACKET, SOMETHING_ECG_START, SOMETHING_ECG_START_2, SOMETHING_ECG_START_3]
+    packets = [GET_DEVICE_NAME_PACKET, GET_DEVICE_INFO_PACKET, GET_DEVICE_SUPPORT_PACKET]
+    #packets = [START_ECG_PACKET, SOMETHING_ECG_START, SOMETHING_ECG_START_2, SOMETHING_ECG_START_3]
     async with BleakClient(ADDRESS) as client:
         print("Connected")
         service = client.services.get_service(SERVICE_UUID)

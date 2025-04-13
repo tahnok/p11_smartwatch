@@ -1,4 +1,4 @@
-def parse_features(bArr):
+def parse_features(bArr: bytearray):
     # Initialize an empty dictionary to store the values
     features = {}
 
@@ -250,3 +250,7 @@ def parse_device_info(b_arr: bytearray) -> dict:
     data["hardwareType"] = hardware_type
 
     return data
+
+def parse_name(bArr: bytes | bytearray) -> str:
+    assert bArr[-1] == 0
+    return bArr[:-1].decode('utf-8')
