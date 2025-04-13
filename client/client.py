@@ -129,34 +129,41 @@ GET_DEVICE_SUPPORT_PACKET = make_packet(
 )
 
 START_ECG_PACKET = make_packet(
-    c.Command.CONTROL, c.Control.BLOOD_CHECK, bytearray([2])
+    c.Command.CONTROL, c.Control.BLOOD_TEST, bytearray([2])
 )  # 770
 
 SOMETHING_ECG_START = make_packet(
-    c.Command.CONTROL, c.Control.WAVE_UPLOAD, bytearray([1, 0])
+    c.Command.CONTROL, c.Control.WAVE_UPLOAD, bytearray([1, 1])
 )  # 779
 
 SOMETHING_ECG_START_2 = make_packet(
     c.Command.CONTROL, c.Control.REAL_DATA, bytearray([1, 3, 2])
 )  # 777
 
-GET_DEVICE_INFO = 512
 
+SOMETHING_ECG_START_3 = make_packet(
+    c.Command.CONTROL, c.Control.WAVE_UPLOAD, bytearray([1, 0])
+)  # 779
+
+
+# hacky wait until we get a packet before sending next
+event = asyncio.Event()
 
 def callback(char: BleakGATTCharacteristic, data: bytearray):
+    event.set()
     print(f"{char.uuid} rx: {data.hex()}")
     p = raw_to_packet(data)
     print(p)
-    if p.dataType == GET_DEVICE_INFO:
+    if p.dataType == 512: # get device info
         print(parser.parse_device_info(p.data))
-    elif p.dataType == 513:
+    elif p.dataType == 513: # get device features
         print(parser.parse_features(p.data))
 
 
 async def main():
     print("Connecting")
     # I think this is to start a heart rate measure
-    packets = [GET_DEVICE_INFO_PACKET, GET_DEVICE_SUPPORT_PACKET]
+    packets = [START_ECG_PACKET, SOMETHING_ECG_START, SOMETHING_ECG_START_2, SOMETHING_ECG_START_3]
     async with BleakClient(ADDRESS) as client:
         print("Connected")
         service = client.services.get_service(SERVICE_UUID)
@@ -168,10 +175,12 @@ async def main():
         await client.start_notify(UUID_BULK, callback)
 
         for packet in packets:
+            event.clear()
             print(f"sending {packet.hex()}")
             x = await client.write_gatt_char(char, packet, response=True)
             print(f"immediate response {x}")
-        for _ in range(5):
+            await event.wait()
+        for _ in range(250):
             await asyncio.sleep(1)
             print(".")
 

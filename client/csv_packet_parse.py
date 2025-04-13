@@ -20,7 +20,7 @@ def main():
 
             p = client.hex_to_packet(r["Value"])
 
-            writer.writerow([source, repr(p.command), repr(p.subCommand), p.dataType, p.data.hex()])
+            writer.writerow([r["No."], source, repr(p.command), repr(p.subCommand), p.dataType, p.data.hex()])
 
     print(output.getvalue())
             
