@@ -12,6 +12,7 @@ class PrettierPrint:
     def __repr__(self):
         return f"{self.name}[{self.value}]"
 
+
 class Command(PrettierPrint, IntEnum):
     SETTING = 1
     GET = 2

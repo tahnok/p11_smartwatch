@@ -1,3 +1,6 @@
+from dataclasses import dataclass
+
+
 def parse_features(bArr: bytearray):
     # Initialize an empty dictionary to store the values
     features = {}
@@ -251,6 +254,72 @@ def parse_device_info(b_arr: bytearray) -> dict:
 
     return data
 
+
 def parse_name(bArr: bytes | bytearray) -> str:
     assert bArr[-1] == 0
-    return bArr[:-1].decode('utf-8')
+    return bArr[:-1].decode("utf-8")
+
+
+@dataclass
+class RealBloodResponse:
+    """
+    Real time response from request for "blood"
+
+    Is sent during the ECG upload, may be possible during other
+    things too
+    """
+
+    dbp: int
+    """
+    diastolic blood pressure
+    """
+
+    sbp: int
+    """
+    systolic blood pressure
+    """
+
+    hr: int
+    """
+    heart rate
+    """
+
+    hrv: int | None = None
+    """
+    heart rate variability
+    """
+
+    spo2: int | None = None
+    """
+    blood oxygen
+    """
+
+    temp_i: int | None = None
+    """
+    temperature as int
+    """
+
+    temp_f: float | None = None
+    """
+    temperature as float
+    """
+
+
+def parse_real_blood(bArr: bytes | bytearray) -> RealBloodResponse:
+    assert len(bArr) > 2, "real blood packet not long enough"
+
+    resp = RealBloodResponse(sbp=bArr[0], dbp=bArr[1], hr=bArr[2])
+
+    if len(bArr) > 3:
+        resp.hrv = bArr[3]
+
+    if len(bArr) > 4:
+        resp.spo2 = bArr[4]
+
+    if len(bArr) > 6:
+        resp.temp_i = bArr[5]
+        resp.temp_f = bArr[
+            6
+        ]  # idk wtf this is doing, there's no float parsing in the android app
+
+    return resp

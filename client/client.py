@@ -154,45 +154,60 @@ SOMETHING_ECG_START_3 = make_packet(
 event = asyncio.Event()
 
 GET_PARSERS = {
-        c.Get.DEVICE_INFO: parser.parse_device_info,
-        c.Get.SUPPORT_FUNCTION: parser.parse_features,
-        c.Get.DEVCIE_NAME: parser.parse_name,
-    }
+    c.Get.DEVICE_INFO: parser.parse_device_info,
+    c.Get.SUPPORT_FUNCTION: parser.parse_features,
+    c.Get.DEVCIE_NAME: parser.parse_name,
+}
+
+REAL_PARSERS = {
+    c.Real.UPLOAD_BLOOD: parser.parse_real_blood,
+}
+
 
 def callback(char: BleakGATTCharacteristic, data: bytearray):
     event.set()
-    print(f"{char.uuid} rx: {data.hex()}")
+    print(f"rx char: {char.uuid}, data: {data.hex()}")
     p = raw_to_packet(data)
-    print(p)
+    print(f"rx {p}")
     if p.command == c.Command.GET:
         if p.subCommand in GET_PARSERS:
             print(GET_PARSERS[p.subCommand](p.data))
+    elif p.command == c.Command.REAL:
+        if p.subCommand in REAL_PARSERS:
+            print(REAL_PARSERS[p.subCommand](p.data))
 
 
 async def main():
     print("Connecting")
     # I think this is to start a heart rate measure
-    packets = [GET_DEVICE_NAME_PACKET, GET_DEVICE_INFO_PACKET, GET_DEVICE_SUPPORT_PACKET]
-    #packets = [START_ECG_PACKET, SOMETHING_ECG_START, SOMETHING_ECG_START_2, SOMETHING_ECG_START_3]
+    # packets = [GET_DEVICE_NAME_PACKET, GET_DEVICE_INFO_PACKET, GET_DEVICE_SUPPORT_PACKET]
+    packets = [
+        START_ECG_PACKET,
+        SOMETHING_ECG_START,
+        SOMETHING_ECG_START_2,
+        SOMETHING_ECG_START_3,
+    ]
     async with BleakClient(ADDRESS) as client:
-        print("Connected")
-        service = client.services.get_service(SERVICE_UUID)
-        assert service
-        char = service.get_characteristic(UUID)
-        assert char
-        await client.start_notify(char, callback)
+        try:
+            print("Connected")
+            service = client.services.get_service(SERVICE_UUID)
+            assert service
+            char = service.get_characteristic(UUID)
+            assert char
+            await client.start_notify(char, callback)
 
-        await client.start_notify(UUID_BULK, callback)
+            await client.start_notify(UUID_BULK, callback)
 
-        for packet in packets:
-            event.clear()
-            print(f"sending {packet.hex()}")
-            x = await client.write_gatt_char(char, packet, response=True)
-            print(f"immediate response {x}")
-            await event.wait()
-        for _ in range(250):
-            await asyncio.sleep(1)
-            print(".")
+            for packet in packets:
+                event.clear()
+                print(f"tx {packet.hex()}")
+                await client.write_gatt_char(char, packet, response=True)
+                await event.wait()
+            for _ in range(250):
+                await asyncio.sleep(1)
+                print(".")
+        finally:
+            client.disconnect()
 
 
 if __name__ == "__main__":

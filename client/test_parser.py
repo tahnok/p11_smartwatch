@@ -1,4 +1,10 @@
-from parser import parse_features, parse_device_info, parse_name
+from parser import (
+    parse_features,
+    parse_device_info,
+    parse_name,
+    parse_real_blood,
+    RealBloodResponse,
+)
 
 
 def test_parse_features():
@@ -161,5 +167,10 @@ def test_parse_device_info():
 
     assert parse_device_info(raw) == expected
 
+
 def test_parse_name():
-    assert "P12C" == parse_name(b'P12C\x00')
+    assert "P12C" == parse_name(b"P12C\x00")
+
+
+def test_parse_real_blood():
+    assert RealBloodResponse(dbp=78, sbp=120, hr=85) == parse_real_blood(b"xNU")
